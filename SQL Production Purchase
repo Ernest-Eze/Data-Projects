@@ -1,0 +1,46 @@
+SELECT 
+ POH.VendorID 'VendorID', 
+  V.BusinessEntityID 'BusinessBusinessEntityID', 
+  POD.PurchaseOrderID 'PurchaseOrderID', 
+  P.ProductID 'ProductID', 
+  SP.CountryRegionCode, 
+  SP.Name 'StateProvinceName', 
+  A.City, 
+  P.Name 'ProductName', 
+  P.ProductNumber, 
+  ISNULL(PSC.Name, 'NoSubCategory') 'ProductSubCategoryName', 
+  V.Name 'VendorName', 
+  POH.Status, 
+  POH.OrderDate, 
+  POH.ShipDate, 
+  POH.SubTotal, 
+  POH.TaxAmt, 
+  POH.Freight, 
+  POH.TotalDue, 
+  POD.OrderQty, 
+  POD.UnitPrice, 
+  POD.LineTotal, 
+  POD.ReceivedQty, 
+  POD.RejectedQty, 
+  POD.StockedQty, 
+  P.SafetyStockLevel, 
+  P.StandardCost, 
+  V.CreditRating, 
+  P.ReorderPoint, 
+  CASE WHEN P.ReorderPoint < 200 THEN 'Red' WHEN P.ReorderPoint BETWEEN 200 
+  AND 299 THEN 'Yellow' ELSE 'Green' END 'ReOrderPointBucket', 
+  CASE WHEN P.StandardCost > 0 THEN 'Yes' ELSE 'No' END 'IsProductSalable', 
+  DATEDIFF(DAY, POH.OrderDate, POH.ShipDate) 'LeadTimes',
+  Convert( Date,GetDate()) 'ReportDate'
+FROM 
+  [Purchasing].[PurchaseOrderHeader] POH 
+  INNER JOIN [Purchasing].[PurchaseOrderDetail] POD ON POD.PurchaseOrderDetailID = POH.PurchaseOrderID 
+  INNER JOIN [Production].[Product] P ON P.ProductID = POD.ProductID 
+  INNER JOIN [Purchasing].[Vendor] V ON V.BusinessEntityID = POH.VendorID 
+  INNER JOIN [Person].[BusinessEntity] BE ON BE.BusinessEntityID = POH.VendorID 
+  INNER JOIN [Person].[BusinessEntityAddress] BEA ON BEA.BusinessEntityID = BE.BusinessEntityID 
+  INNER JOIN [Person].[Address] A ON A.AddressID = BEA.AddressID 
+  INNER JOIN [Person].[StateProvince] SP ON SP.StateProvinceID = A.StateProvinceID 
+  LEFT JOIN [Production].[ProductSubCategory] PSC ON PSC.ProductSubCategoryID = P.ProductSubCategoryID 
+ORDER BY 
+  ProductName
