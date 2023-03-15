@@ -1,0 +1,30 @@
+SELECT 
+  PLP.PlayerID, 
+  POP.PositionID, 
+  C.CountryID, 
+  PLP.Player_Name, 
+  PLP.Age AS Player_Age, 
+  CASE WHEN PLP.AGE <= 25 THEN 'Top Priority' ELSE  'Low Priority' END AS Player_Priority, 
+  REPLACE (
+    REPLACE (
+      REPLACE (
+        REPLACE (
+          POP.Position_Name, 'Forwards', 'Forward'
+        ), 
+        'Midfielders', 
+        'Midfielder'
+      ), 
+      'GoalKeepers', 
+      'GoalKeeper'
+    ), 
+    'Defenders', 
+    'Defender'
+  ) AS Player_Position, 
+  POP.Position_Point AS Position_Score, 
+  C.Country_Name AS Player_Country, 
+FROM 
+  my-project-sandbox-378902.fifa_data.WC2022PlayerPoints PLP
+  INNER JOIN my-project-sandbox-378902.fifa_data.WC2022PositionPoints POP ON POP.PositionID = PLP.PositionID 
+  INNER JOIN my-project-sandbox-378902.fifa_data.WC2022Country C ON C.CountryID = PLP.CountryID 
+ORDER BY 
+  PlayerID DESC
